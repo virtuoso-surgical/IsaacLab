@@ -8,17 +8,17 @@
 import isaaclab.sim as sim_utils
 from isaaclab.actuators import ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
-from isaaclab.utils.assets import ISAACLAB_NUCLEUS_DIR
+from isaaclab_assets import ISAACLAB_ASSETS_DATA_DIR
 
 ##
 # Configuration
 ##
 
-USD_PATH = "/home/jpetrin/vs/nvdia-isaac/isaac/tube_assembly_with_clearance_angle_v0.1.0.usd"
+# USD_PATH = "/home/jpetrin/vs/nvdia-isaac/isaac/tube_assembly_with_clearance_angle_v0.1.0.usd"
 
 VIRTUOSO_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{USD_PATH}",
+        usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/robot_left_side.usd",
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=True,
@@ -31,30 +31,30 @@ VIRTUOSO_CFG = ArticulationCfg(
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         joint_pos={
-            "left_clearance_angle_rotation_joint": 0.0,
+            "left_clearance_angle_rotation_joint": 0.028,
             "left_clearance_angle_translation_joint": 0.0,
             "left_outer_tube_translation_joint": 0.0,
             "left_outer_tube_rotation_joint": 0.0,
             "left_inner_tube_translation_joint": 0.0,
             "left_inner_tube_rotation_joint": 0.0,
-            "right_clearance_angle_rotation_joint": 0.0,
-            "right_clearance_angle_translation_joint": 0.0,
-            "right_outer_tube_translation_joint": 0.0,
-            "right_outer_tube_rotation_joint": 0.0,
-            "right_inner_tube_translation_joint": 0.0,
-            "right_inner_tube_rotation_joint": 0.0,
+            # "right_clearance_angle_rotation_joint": 0.0,
+            # "right_clearance_angle_translation_joint": 0.0,
+            # "right_outer_tube_translation_joint": 0.0,
+            # "right_outer_tube_rotation_joint": 0.0,
+            # "right_inner_tube_translation_joint": 0.0,
+            # "right_inner_tube_rotation_joint": 0.0,
         },
     ),
     actuators={
         "axial_tube_extension": ImplicitActuatorCfg(
-            joint_names_expr=["*_translation_joint"],
+            joint_names_expr=[".*_translation_joint"],
             effort_limit_sim=100000.0,
             velocity_limit_sim=10.0,
             stiffness=100.0,
             damping=2.0,
         ),
         "tube_rotation": ImplicitActuatorCfg(
-            joint_names_expr=["*_rotation_joint"],
+            joint_names_expr=[".*_rotation_joint"],
             effort_limit_sim=10000.0,
             velocity_limit_sim=10.0,
             stiffness=100.0,
