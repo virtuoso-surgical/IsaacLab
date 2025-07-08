@@ -17,13 +17,19 @@ import torch
 import omni.log
 
 from isaaclab_tasks.utils import parse_env_cfg
+from isaaclab.managers import TerminationTermCfg as DoneTerm
+import isaaclab_tasks  # noqa: F401
+from isaaclab_tasks.manager_based.manipulation.lift import mdp
 
 import math
+import threading
 
 # ROS
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
+# Node = None
+# JointState = None
 
 # Define a ROS node
 class JointStateListener(Node):
@@ -33,33 +39,51 @@ class JointStateListener(Node):
             JointState,
             '/ves/left/joint/setpoint_jp',
             self.left_joint_state_callback,
-            10,
+            3,
         )
         self.subscription = self.create_subscription(
             JointState,
             '/ves/right/joint/setpoint_jp',
             self.right_joint_state_callback,
-            10,
+            3,
         )
 
+        self.joint_states = VirtuosoJointState()
+    
+    def set_joint_state(self, names, positions, left_side):
+        try:
+            values = (
+                positions[names.index('inner_rotation')],
+                positions[names.index('outer_rotation')],
+                positions[names.index('inner_translation')],
+                positions[names.index('outer_translation')],
+            )
+            if left_side:
+                self.joint_states.set_left_joint_values(*values)
+            else:
+                self.joint_states.set_right_joint_values(*values)
+
+        except Exception as e:
+            print(f'Setting joint values failed: {e}')
+
     def left_joint_state_callback(self, msg: JointState):
-        self.get_logger().info('Received JointState for LEFT side:')
-        self.get_logger().info(f'  Names: {msg.name}')
-        self.get_logger().info(f'  Positions: {msg.position}')
-        self.get_logger().info(f'  Velocities: {msg.velocity}')
-        self.get_logger().info(f'  Efforts: {msg.effort}')
+        # self.get_logger().info('Received JointState for LEFT side:')
+        # self.get_logger().info(f'  Names: {msg.name}')
+        # self.get_logger().info(f'  Positions: {msg.position}')
+
+        self.set_joint_state(msg.name, msg.position, True)
     
     def right_joint_state_callback(self, msg: JointState):
-        self.get_logger().info('Received JointState for RIGHT side:')
-        self.get_logger().info(f'  Names: {msg.name}')
-        self.get_logger().info(f'  Positions: {msg.position}')
-        self.get_logger().info(f'  Velocities: {msg.velocity}')
-        self.get_logger().info(f'  Efforts: {msg.effort}')
+        # self.get_logger().info('Received JointState for RIGHT side:')
+        # self.get_logger().info(f'  Names: {msg.name}')
+        # self.get_logger().info(f'  Positions: {msg.position}')
+
+        self.set_joint_state(msg.name, msg.position, False)
+
 
 # Define the Virtuoso joint state data structure
-# TODO: Do the Virtuoso-to-IsaacLab calculations in this class
 class VirtuosoJointState:
-    def __init__(self, left_values = (0.0,)*5, right_values = (0.0,)*5):
+    def __init__(self, left_values = (0.0,)*6, right_values = (0.0,)*6):
         self.left_clearance_angle_rotation_joint = left_values[0]
         self.left_clearance_angle_translation_joint = left_values[1]
         self.left_outer_tube_translation_joint = left_values[2]
@@ -121,11 +145,14 @@ class VirtuosoJointState:
         return torch.tensor(np.array([
             self.left_clearance_angle_rotation_joint, self.left_clearance_angle_translation_joint,
             self.left_outer_tube_translation_joint, self.left_outer_tube_rotation_joint,
-            self.left_inner_tube_rotation_joint, self.left_inner_tube_translation_joint]),
+            self.left_inner_tube_translation_joint, self.left_inner_tube_rotation_joint,
+            self.right_clearance_angle_rotation_joint, self.right_clearance_angle_translation_joint,
+            self.right_outer_tube_translation_joint, self.right_outer_tube_rotation_joint,
+            self.right_inner_tube_translation_joint, self.right_inner_tube_rotation_joint]),
             dtype=torch.float).repeat(1, 1)
 
 
-def main():
+def main(args=None):
     """Running keyboard teleoperation with Isaac Lab manipulation environment."""
     # create environment
     task = "Isaac-Reach-Tissue-Virtuoso-v0"
@@ -133,7 +160,10 @@ def main():
     env = gym.make(task, cfg=env_cfg).unwrapped
 
     # make ROS node
+    rclpy.init(args=args)
     ros_node = JointStateListener()
+    spinner_thread = threading.Thread(target=rclpy.spin, args=(ros_node,))
+    spinner_thread.start()
 
     # reset environment
     env.reset()
@@ -143,23 +173,22 @@ def main():
         # run everything in inference mode
         with torch.inference_mode():
             # get joint command
-            # TODO: Get ROS input here!!
-            joint_command = torch.tensor(np.array([0.002, 0.1, 0.5, 0.5, 0.001, 0.01]), dtype=torch.float).repeat(1, 1)
+            joint_command = ros_node.joint_states.to_tensor()
 
-            # Only apply teleop commands when active
-            # if teleoperation_active:
-            # compute actions based on environment
-            # actions = pre_process_actions(teleop_data, env.num_envs, env.device)
             # apply actions
+            # joint_command = torch.tensor(np.array([0.002, 0.1, 0.5, 0.5, 0.001, 0.01] * 2), dtype=torch.float).repeat(1, 1)
+
             env.step(joint_command)
-            # else:
-            # env.sim.render()
 
             # spin ROS
-            rclpy.spin_once(ros_node)
+            # rclpy.spin_once(ros_node)
 
     # close the simulator
     env.close()
+
+    # shutdown ROS
+    rclpy.shutdown()
+    spinner_thread.join()
 
 
 if __name__ == "__main__":

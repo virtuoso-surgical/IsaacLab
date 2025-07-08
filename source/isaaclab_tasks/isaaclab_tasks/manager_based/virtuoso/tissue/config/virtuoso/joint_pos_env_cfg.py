@@ -40,7 +40,13 @@ class VirtuosoTissueEnvCfg(TissueEnvCfg):
                 "left_outer_tube_translation_joint",
                 "left_outer_tube_rotation_joint",
                 "left_inner_tube_translation_joint",
-                "left_inner_tube_rotation_joint"
+                "left_inner_tube_rotation_joint",
+                "right_clearance_angle_rotation_joint",
+                "right_clearance_angle_translation_joint",
+                "right_outer_tube_translation_joint",
+                "right_outer_tube_rotation_joint",
+                "right_inner_tube_translation_joint",
+                "right_inner_tube_rotation_joint",
             ],
             scale=0.5,
             use_default_offset=True
