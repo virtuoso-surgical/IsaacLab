@@ -18,6 +18,8 @@ import omni.log
 
 from isaaclab_tasks.utils import parse_env_cfg
 
+import math
+
 # ROS
 import rclpy
 from rclpy.node import Node
@@ -30,7 +32,7 @@ class JointStateListener(Node):
         self.subscription = self.create_subscription(
             JointState,
             '/ves/left/joint/setpoint_jp',
-            self.joint_state_callback,
+            self.left_joint_state_callback,
             10,
         )
         self.subscription = self.create_subscription(
@@ -41,14 +43,18 @@ class JointStateListener(Node):
         )
 
     def left_joint_state_callback(self, msg: JointState):
-        self.get_logger().info('Received JointState:')
+        self.get_logger().info('Received JointState for LEFT side:')
         self.get_logger().info(f'  Names: {msg.name}')
         self.get_logger().info(f'  Positions: {msg.position}')
         self.get_logger().info(f'  Velocities: {msg.velocity}')
         self.get_logger().info(f'  Efforts: {msg.effort}')
     
     def right_joint_state_callback(self, msg: JointState):
-        self.get_logger().info('I don\'t know what to do; I never thought I would get this far')
+        self.get_logger().info('Received JointState for RIGHT side:')
+        self.get_logger().info(f'  Names: {msg.name}')
+        self.get_logger().info(f'  Positions: {msg.position}')
+        self.get_logger().info(f'  Velocities: {msg.velocity}')
+        self.get_logger().info(f'  Efforts: {msg.effort}')
 
 # Define the Virtuoso joint state data structure
 # TODO: Do the Virtuoso-to-IsaacLab calculations in this class
@@ -66,6 +72,50 @@ class VirtuosoJointState:
         self.right_outer_tube_rotation_joint = right_values[3]
         self.right_inner_tube_translation_joint = right_values[4]
         self.right_inner_tube_rotation_joint = right_values[5]
+    
+    def set_left_joint_values(self, inner_rotation, outer_rotation, inner_translation, outer_translation):
+        self._set_joint_values(True, inner_rotation, outer_rotation, inner_translation, outer_translation)
+
+    def set_right_joint_values(self, inner_rotation, outer_rotation, inner_translation, outer_translation):
+        self._set_joint_values(False, inner_rotation, outer_rotation, inner_translation, outer_translation)
+    
+    def _set_joint_values(self, is_left, inner_rotation, outer_rotation, inner_translation, outer_translation):
+        # do clearance angle first
+        clearance_angle_rotation_joint = 0.1900
+        clearance_angle_translation_joint = 0.005
+        if outer_translation < 0.005:
+            clearance_angle_translation_joint = max(min(clearance_angle_translation_joint, outer_translation), 0.0)
+            if outer_translation < 1e-6:
+                clearance_angle_rotation_joint = 0.05599
+            else:
+                tubed_length = max(0.005 - outer_translation, 0.0)
+                clearance_angle_rotation_joint = 2*math.atan(
+                    (math.sqrt(tubed_length*tubed_length + 0.00000991) - tubed_length) / 0.033033333)
+        
+        # next do the outer and inner tube translations
+        ot_translation = max(outer_translation - clearance_angle_translation_joint, 0.0)
+        outer_tube_translation_joint = ot_translation * 60.0
+        inner_tube_translation_joint = max(inner_translation - outer_tube_translation_joint, 0.0)
+
+        # finally, do outer and inner rotations
+        outer_tube_rotation_joint = outer_rotation
+        inner_tube_rotation_joint = inner_rotation - outer_rotation
+
+        # there is a better way to do this, but whatever
+        if is_left:
+            self.left_clearance_angle_rotation_joint = clearance_angle_rotation_joint
+            self.left_clearance_angle_translation_joint = clearance_angle_translation_joint
+            self.left_outer_tube_translation_joint = outer_tube_translation_joint
+            self.left_outer_tube_rotation_joint = outer_tube_rotation_joint
+            self.left_inner_tube_translation_joint = inner_tube_translation_joint
+            self.left_inner_tube_rotation_joint = inner_tube_rotation_joint
+        else:
+            self.right_clearance_angle_rotation_joint = clearance_angle_rotation_joint
+            self.right_clearance_angle_translation_joint = clearance_angle_translation_joint
+            self.right_outer_tube_translation_joint = outer_tube_translation_joint
+            self.right_outer_tube_rotation_joint = outer_tube_rotation_joint
+            self.right_inner_tube_translation_joint = inner_tube_translation_joint
+            self.right_inner_tube_rotation_joint = inner_tube_rotation_joint
 
     def to_tensor(self):
         return torch.tensor(np.array([

@@ -18,7 +18,7 @@ from isaaclab_assets import ISAACLAB_ASSETS_DATA_DIR
 
 VIRTUOSO_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/robot_left_side.usd",
+        usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/tube_assembly_with_clearance_angle_v0.1.0.usd",
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=True,
@@ -37,12 +37,12 @@ VIRTUOSO_CFG = ArticulationCfg(
             "left_outer_tube_rotation_joint": 0.0,
             "left_inner_tube_translation_joint": 0.0,
             "left_inner_tube_rotation_joint": 0.0,
-            # "right_clearance_angle_rotation_joint": 0.0,
-            # "right_clearance_angle_translation_joint": 0.0,
-            # "right_outer_tube_translation_joint": 0.0,
-            # "right_outer_tube_rotation_joint": 0.0,
-            # "right_inner_tube_translation_joint": 0.0,
-            # "right_inner_tube_rotation_joint": 0.0,
+            "right_clearance_angle_rotation_joint": 0.028,
+            "right_clearance_angle_translation_joint": 0.0,
+            "right_outer_tube_translation_joint": 0.0,
+            "right_outer_tube_rotation_joint": 0.0,
+            "right_inner_tube_translation_joint": 0.0,
+            "right_inner_tube_rotation_joint": 0.0,
         },
     ),
     actuators={
