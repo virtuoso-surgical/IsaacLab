@@ -50,18 +50,18 @@ VIRTUOSO_CFG = ArticulationCfg(
             joint_names_expr=[".*_translation_joint"],
             effort_limit_sim=100000.0,
             velocity_limit_sim=10.0,
-            stiffness=100.0,
+            stiffness=10.0,
             damping=2.0,
         ),
         "tube_rotation": ImplicitActuatorCfg(
             joint_names_expr=[".*_rotation_joint"],
             effort_limit_sim=10000.0,
             velocity_limit_sim=10.0,
-            stiffness=100.0,
+            stiffness=10.0,
             damping=2.0,
         ),
     },
-    soft_joint_pos_limit_factor=0.001,
+    soft_joint_pos_limit_factor=0.000001,
 )
 
 # FRANKA_PANDA_HIGH_PD_CFG = FRANKA_PANDA_CFG.copy()

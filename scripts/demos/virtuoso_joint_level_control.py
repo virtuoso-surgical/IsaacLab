@@ -119,7 +119,7 @@ class VirtuosoJointState:
         # next do the outer and inner tube translations
         ot_translation = max(outer_translation - clearance_angle_translation_joint, 0.0)
         outer_tube_translation_joint = ot_translation * 60.0
-        inner_tube_translation_joint = max(inner_translation - outer_tube_translation_joint, 0.0)
+        inner_tube_translation_joint = max(inner_translation - outer_translation, 0.0)
 
         # finally, do outer and inner rotations
         outer_tube_rotation_joint = outer_rotation
@@ -157,6 +157,7 @@ def main(args=None):
     # create environment
     task = "Isaac-Reach-Tissue-Virtuoso-v0"
     env_cfg = parse_env_cfg(task, num_envs=1)
+    env_cfg.terminations.time_out = None
     env = gym.make(task, cfg=env_cfg).unwrapped
 
     # make ROS node
@@ -174,6 +175,19 @@ def main(args=None):
         with torch.inference_mode():
             # get joint command
             joint_command = ros_node.joint_states.to_tensor()
+            print(f'Joint command:')
+            print(f'left ca rot: {joint_command[0][0]}')
+            print(f'left ca trans: {joint_command[0][1]}')
+            print(f'left ot trans: {joint_command[0][2]}')
+            print(f'left ot rot: {joint_command[0][3]}')
+            print(f'left it trans: {joint_command[0][4]}')
+            print(f'left it rot: {joint_command[0][5]}')
+            print(f'right ca rot: {joint_command[0][6]}')
+            print(f'right ca trans: {joint_command[0][7]}')
+            print(f'right ot trans: {joint_command[0][8]}')
+            print(f'right ot rot: {joint_command[0][9]}')
+            print(f'right it trans: {joint_command[0][10]}')
+            print(f'right it rot: {joint_command[0][11]}')
 
             # apply actions
             # joint_command = torch.tensor(np.array([0.002, 0.1, 0.5, 0.5, 0.001, 0.01] * 2), dtype=torch.float).repeat(1, 1)

@@ -48,8 +48,9 @@ class VirtuosoTissueEnvCfg(TissueEnvCfg):
                 "right_inner_tube_translation_joint",
                 "right_inner_tube_rotation_joint",
             ],
-            scale=0.5,
-            use_default_offset=True
+            scale=1.0,
+            use_default_offset=True,
+            # debug_vis=True, # TODO: Debug
         )
 
         # Set deformable skin tissue as object
