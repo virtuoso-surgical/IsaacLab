@@ -144,13 +144,13 @@ class VirtuosoJointState:
                 self.left_outer_rotation_wrapping += 1
 
             self.left_outer_tube_rotation_joint = outer_tube_rotation_joint + 2*math.pi*self.left_outer_rotation_wrapping
-            # TODO: temp fix for the spinny
-            self.left_inner_tube_rotation_joint = inner_tube_rotation_joint + (math.pi if inner_tube_rotation_joint < math.pi else 0.0)
 
             # if (self.left_inner_tube_rotation_joint % (2*math.pi)) < math.pi/2 and inner_tube_rotation_joint > 3*math.pi/2:
             #     self.left_inner_rotation_wrapping -= 1
             # elif (self.left_inner_tube_rotation_joint % (2*math.pi)) > 3*math.pi/2 and inner_tube_rotation_joint < math.pi/2:
             #     self.left_inner_rotation_wrapping += 1
+
+            self.left_inner_tube_rotation_joint = inner_tube_rotation_joint #+ 2*math.pi*(self.left_inner_rotation_wrapping + 1)
 
         else:
             self.right_clearance_angle_rotation_joint = clearance_angle_rotation_joint
