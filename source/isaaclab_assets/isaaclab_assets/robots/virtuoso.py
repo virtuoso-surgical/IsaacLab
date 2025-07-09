@@ -18,7 +18,7 @@ from isaaclab_assets import ISAACLAB_ASSETS_DATA_DIR
 
 VIRTUOSO_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/tube_assembly_with_clearance_angle_v0.1.0.usd",
+        usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/tube_assembly_with_clearance_angle_v0.1.2.usd",
         # usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/robot_left_side.usd",
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(

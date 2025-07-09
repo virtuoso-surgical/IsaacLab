@@ -46,7 +46,7 @@ class TissueSceneCfg(InteractiveSceneCfg):
     # Table
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.0, -0.482)),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.0, -0.472)),
         spawn=UsdFileCfg(usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Props/Table/table.usd"),
     )
 
@@ -56,7 +56,7 @@ class TissueSceneCfg(InteractiveSceneCfg):
     # lights
     light = AssetBaseCfg(
         prim_path="/World/light",
-        spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=2500.0),
+        spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=100.0),
     )
 
 

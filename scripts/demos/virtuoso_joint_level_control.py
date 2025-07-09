@@ -37,13 +37,13 @@ class JointStateListener(Node):
         super().__init__('isaaclab_node_thing')
         self.subscription = self.create_subscription(
             JointState,
-            '/ves/left/joint/setpoint_jp',
+            '/ves/left/joint/measured_jp',
             self.left_joint_state_callback,
             3,
         )
         self.subscription = self.create_subscription(
             JointState,
-            '/ves/right/joint/setpoint_jp',
+            '/ves/right/joint/measured_jp',
             self.right_joint_state_callback,
             3,
         )
@@ -96,7 +96,12 @@ class VirtuosoJointState:
         self.right_outer_tube_rotation_joint = right_values[3]
         self.right_inner_tube_translation_joint = right_values[4]
         self.right_inner_tube_rotation_joint = right_values[5]
-    
+
+        self.left_outer_rotation_wrapping = 0
+        self.left_inner_rotation_wrapping = 0
+        self.right_outer_rotation_wrapping = 0
+        self.right_inner_rotation_wrapping = 0
+
     def set_left_joint_values(self, inner_rotation, outer_rotation, inner_translation, outer_translation):
         self._set_joint_values(True, inner_rotation, outer_rotation, inner_translation, outer_translation)
 
@@ -130,16 +135,44 @@ class VirtuosoJointState:
             self.left_clearance_angle_rotation_joint = clearance_angle_rotation_joint
             self.left_clearance_angle_translation_joint = clearance_angle_translation_joint
             self.left_outer_tube_translation_joint = outer_tube_translation_joint
-            self.left_outer_tube_rotation_joint = outer_tube_rotation_joint
             self.left_inner_tube_translation_joint = inner_tube_translation_joint
-            self.left_inner_tube_rotation_joint = inner_tube_rotation_joint
+
+            # outer rotation joints have to be wrapped (inner rotation joints are always borked lol)
+            if (self.left_outer_tube_rotation_joint % (2*math.pi)) < math.pi/2 and outer_tube_rotation_joint > 3*math.pi/2:
+                self.left_outer_rotation_wrapping -= 1
+            elif (self.left_outer_tube_rotation_joint % (2*math.pi)) > 3*math.pi/2 and outer_tube_rotation_joint < math.pi/2:
+                self.left_outer_rotation_wrapping += 1
+
+            self.left_outer_tube_rotation_joint = outer_tube_rotation_joint + 2*math.pi*self.left_outer_rotation_wrapping
+            # TODO: temp fix for the spinny
+            self.left_inner_tube_rotation_joint = inner_tube_rotation_joint + (math.pi if inner_tube_rotation_joint < math.pi else 0.0)
+
+            # if (self.left_inner_tube_rotation_joint % (2*math.pi)) < math.pi/2 and inner_tube_rotation_joint > 3*math.pi/2:
+            #     self.left_inner_rotation_wrapping -= 1
+            # elif (self.left_inner_tube_rotation_joint % (2*math.pi)) > 3*math.pi/2 and inner_tube_rotation_joint < math.pi/2:
+            #     self.left_inner_rotation_wrapping += 1
+
         else:
             self.right_clearance_angle_rotation_joint = clearance_angle_rotation_joint
             self.right_clearance_angle_translation_joint = clearance_angle_translation_joint
             self.right_outer_tube_translation_joint = outer_tube_translation_joint
-            self.right_outer_tube_rotation_joint = outer_tube_rotation_joint
             self.right_inner_tube_translation_joint = inner_tube_translation_joint
+
+            # outer rotation joints have to be wrapped (inner rotation joints are always borked lol)
+            if (self.right_outer_tube_rotation_joint % (2*math.pi)) < math.pi/2 and outer_tube_rotation_joint > 3*math.pi/2:
+                self.right_outer_rotation_wrapping -= 1
+            elif (self.right_outer_tube_rotation_joint % (2*math.pi)) > 3*math.pi/2 and outer_tube_rotation_joint < math.pi/2:
+                self.right_outer_rotation_wrapping += 1
+
+            self.right_outer_tube_rotation_joint = outer_tube_rotation_joint + 2*math.pi*self.right_outer_rotation_wrapping
             self.right_inner_tube_rotation_joint = inner_tube_rotation_joint
+
+            # if (self.right_inner_tube_rotation_joint % (2*math.pi)) < math.pi/2 and inner_tube_rotation_joint > 3*math.pi/2:
+            #     self.right_inner_rotation_wrapping -= 1
+            # elif (self.right_inner_tube_rotation_joint % (2*math.pi)) > 3*math.pi/2 and inner_tube_rotation_joint < math.pi/2:
+            #     self.right_inner_rotation_wrapping += 1
+
+        # print(f'left inner rotation: {self.left_inner_tube_rotation_joint}')
 
     def to_tensor(self, device='cuda:0'):
         return torch.tensor(np.array([
