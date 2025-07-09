@@ -19,6 +19,7 @@ from isaaclab_assets import ISAACLAB_ASSETS_DATA_DIR
 VIRTUOSO_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
         usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/tube_assembly_with_clearance_angle_v0.1.0.usd",
+        # usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Robots/virtuoso/robot_left_side.usd",
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=True,
@@ -46,18 +47,18 @@ VIRTUOSO_CFG = ArticulationCfg(
         },
     ),
     actuators={
-        "axial_tube_extension": ImplicitActuatorCfg(
+        "tube_extension": ImplicitActuatorCfg(
             joint_names_expr=[".*_translation_joint"],
             effort_limit_sim=100000.0,
             velocity_limit_sim=10.0,
-            stiffness=10.0,
+            stiffness=100000.0,
             damping=2.0,
         ),
         "tube_rotation": ImplicitActuatorCfg(
             joint_names_expr=[".*_rotation_joint"],
             effort_limit_sim=10000.0,
             velocity_limit_sim=10.0,
-            stiffness=10.0,
+            stiffness=100000.0,
             damping=2.0,
         ),
     },

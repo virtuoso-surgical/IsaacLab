@@ -141,15 +141,17 @@ class VirtuosoJointState:
             self.right_inner_tube_translation_joint = inner_tube_translation_joint
             self.right_inner_tube_rotation_joint = inner_tube_rotation_joint
 
-    def to_tensor(self):
+    def to_tensor(self, device='cuda:0'):
         return torch.tensor(np.array([
             self.left_clearance_angle_rotation_joint, self.left_clearance_angle_translation_joint,
+            # self.left_outer_tube_rotation_joint, self.left_outer_tube_translation_joint,
             self.left_outer_tube_translation_joint, self.left_outer_tube_rotation_joint,
             self.left_inner_tube_translation_joint, self.left_inner_tube_rotation_joint,
             self.right_clearance_angle_rotation_joint, self.right_clearance_angle_translation_joint,
+            # self.right_outer_tube_rotation_joint, self.right_outer_tube_translation_joint,
             self.right_outer_tube_translation_joint, self.right_outer_tube_rotation_joint,
             self.right_inner_tube_translation_joint, self.right_inner_tube_rotation_joint]),
-            dtype=torch.float).repeat(1, 1)
+            dtype=torch.float, device=device).repeat(1, 1)
 
 
 def main(args=None):
@@ -175,27 +177,10 @@ def main(args=None):
         with torch.inference_mode():
             # get joint command
             joint_command = ros_node.joint_states.to_tensor()
-            print(f'Joint command:')
-            print(f'left ca rot: {joint_command[0][0]}')
-            print(f'left ca trans: {joint_command[0][1]}')
-            print(f'left ot trans: {joint_command[0][2]}')
-            print(f'left ot rot: {joint_command[0][3]}')
-            print(f'left it trans: {joint_command[0][4]}')
-            print(f'left it rot: {joint_command[0][5]}')
-            print(f'right ca rot: {joint_command[0][6]}')
-            print(f'right ca trans: {joint_command[0][7]}')
-            print(f'right ot trans: {joint_command[0][8]}')
-            print(f'right ot rot: {joint_command[0][9]}')
-            print(f'right it trans: {joint_command[0][10]}')
-            print(f'right it rot: {joint_command[0][11]}')
+            # print(f'Joint command: {joint_command}')
 
             # apply actions
-            # joint_command = torch.tensor(np.array([0.002, 0.1, 0.5, 0.5, 0.001, 0.01] * 2), dtype=torch.float).repeat(1, 1)
-
             env.step(joint_command)
-
-            # spin ROS
-            # rclpy.spin_once(ros_node)
 
     # close the simulator
     env.close()
