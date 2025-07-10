@@ -139,11 +139,14 @@ class VirtuosoJointState:
 
             # outer rotation joints have to be wrapped (inner rotation joints are always borked lol)
             if (self.left_outer_tube_rotation_joint % (2*math.pi)) < math.pi/2 and outer_tube_rotation_joint > 3*math.pi/2:
-                self.left_outer_rotation_wrapping -= 1 if abs(self.left_outer_rotation_wrapping) < 2 else 0
+                self.left_outer_rotation_wrapping -= 1 if self.left_outer_rotation_wrapping > -1 else 0
             elif (self.left_outer_tube_rotation_joint % (2*math.pi)) > 3*math.pi/2 and outer_tube_rotation_joint < math.pi/2:
-                self.left_outer_rotation_wrapping += 1 if abs(self.left_outer_rotation_wrapping) < 2 else 0
+                self.left_outer_rotation_wrapping += 1 if self.left_outer_rotation_wrapping < 0 else 0
 
             self.left_outer_tube_rotation_joint = outer_tube_rotation_joint + 2*math.pi*self.left_outer_rotation_wrapping
+
+            # print(f'left outer tube rotation: {self.left_outer_tube_rotation_joint}')
+            # print(f'left outer rotation wrapping: {self.left_outer_rotation_wrapping}')
 
             # if (self.left_inner_tube_rotation_joint % (2*math.pi)) < math.pi/2 and inner_tube_rotation_joint > 3*math.pi/2:
             #     self.left_inner_rotation_wrapping -= 1
@@ -160,11 +163,15 @@ class VirtuosoJointState:
 
             # outer rotation joints have to be wrapped (inner rotation joints are always borked lol)
             if (self.right_outer_tube_rotation_joint % (2*math.pi)) < math.pi/2 and outer_tube_rotation_joint > 3*math.pi/2:
-                self.right_outer_rotation_wrapping -= 1 if abs(self.right_outer_rotation_wrapping) < 2 else 0
+                self.right_outer_rotation_wrapping -= 1 if self.right_outer_rotation_wrapping > -1 else 0
             elif (self.right_outer_tube_rotation_joint % (2*math.pi)) > 3*math.pi/2 and outer_tube_rotation_joint < math.pi/2:
-                self.right_outer_rotation_wrapping += 1 if abs(self.right_outer_rotation_wrapping) < 2 else 0
+                self.right_outer_rotation_wrapping += 1 if self.right_outer_rotation_wrapping < 0 else 0
 
             self.right_outer_tube_rotation_joint = outer_tube_rotation_joint + 2*math.pi*self.right_outer_rotation_wrapping
+
+            # print(f'right outer tube rotation: {self.right_outer_tube_rotation_joint}')
+            # print(f'right outer rotation wrapping: {self.right_outer_rotation_wrapping}')
+
             self.right_inner_tube_rotation_joint = inner_tube_rotation_joint
 
             # if (self.right_inner_tube_rotation_joint % (2*math.pi)) < math.pi/2 and inner_tube_rotation_joint > 3*math.pi/2:
