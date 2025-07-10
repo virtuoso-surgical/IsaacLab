@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-from isaaclab.assets import DeformableObjectCfg
+from isaaclab.assets import AssetBaseCfg, DeformableObjectCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
 from isaaclab.utils import configclass
 
@@ -54,13 +54,22 @@ class VirtuosoTissueEnvCfg(TissueEnvCfg):
         )
 
         # Set deformable skin tissue as object
-        self.scene.object = DeformableObjectCfg(
+        # self.scene.object = DeformableObjectCfg(
+        #     prim_path="{ENV_REGEX_NS}/Object",
+        #     init_state=DeformableObjectCfg.InitialStateCfg(pos=[0.094, 0.0, 0.0130], rot=[0, 0, 0, 1]),
+        #     spawn=UsdFileCfg(
+        #         usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Props/Skin/skin.usd",
+        #         scale=(0.08, 0.05, 0.0004),
+        #     ),
+        #     debug_vis=True,
+        # )
+        # self.scene.object.visualizer_cfg.markers["target"].radius = 0.002
+
+        self.scene.object = AssetBaseCfg(
             prim_path="{ENV_REGEX_NS}/Object",
-            init_state=DeformableObjectCfg.InitialStateCfg(pos=[0.094, 0.0, 0.0130], rot=[0, 0, 0, 1]),
+            init_state=AssetBaseCfg.InitialStateCfg(pos=[0.11, 0.0, -0.011], rot=[0, 0, 0, 1]),
             spawn=UsdFileCfg(
-                usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Props/Skin/skin.usd",
+                usd_path=f"{ISAACLAB_ASSETS_DATA_DIR}/Props/Skin/skin-fixed.usd",
                 scale=(0.08, 0.05, 0.0004),
-            ),
-            debug_vis=True,
+                ),
         )
-        self.scene.object.visualizer_cfg.markers["target"].radius = 0.002

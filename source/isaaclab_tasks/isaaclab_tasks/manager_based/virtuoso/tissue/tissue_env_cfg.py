@@ -41,7 +41,7 @@ class TissueSceneCfg(InteractiveSceneCfg):
     )
 
     # target object: will be populated by agent env cfg
-    object: RigidObjectCfg | DeformableObjectCfg = MISSING
+    object: RigidObjectCfg | DeformableObjectCfg | AssetBaseCfg = MISSING
 
     # Table
     table = AssetBaseCfg(
@@ -107,27 +107,27 @@ class EventCfg:
         },
     )
 
-    reset_object_position = EventTerm(
-        func=mdp.reset_nodal_state_uniform,
-        mode="reset",
-        params={
-            "position_range": {
-                "x": (0.0, 0.0),
-                "y": (0.0, 0.0),
-                "z": (0.0, 0.0),
-            },
-            "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object"),
-        },
-        )
+    # reset_object_position = EventTerm(
+    #     func=mdp.reset_nodal_state_uniform,
+    #     mode="reset",
+    #     params={
+    #         "position_range": {
+    #             "x": (0.0, 0.0),
+    #             "y": (0.0, 0.0),
+    #             "z": (0.0, 0.0),
+    #         },
+    #         "velocity_range": {},
+    #         "asset_cfg": SceneEntityCfg("object"),
+    #     },
+    #     )
 
-    reset_kinematic_target = EventTerm(
-            func=mdp.reset_nodal_kinematic_target,
-            mode="reset",
-            params={
-                "asset_cfg": SceneEntityCfg("object"),
-            },
-        )
+    # reset_kinematic_target = EventTerm(
+    #         func=mdp.reset_nodal_kinematic_target,
+    #         mode="reset",
+    #         params={
+    #             "asset_cfg": SceneEntityCfg("object"),
+    #         },
+    #     )
 
 
 @configclass
